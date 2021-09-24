@@ -9,6 +9,7 @@ my_lemmatizer = WordNetLemmatizer()
 # have words in array
 titles = [w.rstrip() for w in open('book_title.txt')]
 
+#print(titles)
 #again we need to remove stopword
 
 stopword = set(wo.rstrip() for wo in open('stopwords.txt'))
@@ -20,14 +21,14 @@ stopword = stopword.union({
 }) 
 
 def my_tokenization(s):
-    s = s.lower()     # to make them all lowercase
+    s = s.lower()     # to make them all lowercase 
     toky = nltk.tokenize.word_tokenize(s)
-    print(toky)
     toky = [x for x in toky if len(x)>2]
     toky = [my_lemmatizer.lemmatize(t) for t in toky]
-    toky = [x for x in toky if x not in stopwords]
-    toky = [x for x in toky if not any(c.isdigit()) for c in x]  #remove the edition like first, second, ...
+    toky = [t for t in toky if t not in stopword]
+    toky = [d for d in toky if not any(c.isdigit() for c in d)]  #remove the edition like first, second, ...
     return toky
+
 
 
 vocab_dict_map = {}
@@ -39,7 +40,8 @@ index_to_word_map = []
 
 for string in titles:
     try:
-        string = string.encode('ascii', 'ignore')  #some of them are not valid in ascii
+        #string = string.encode('ascii', 'ignore')  #some of them are not valid in ascii
+        #print(string)
         all_titles.append(string)
         title_words = my_tokenization(string)
         all_tokens.append(title_words)
@@ -68,7 +70,11 @@ for item in all_tokens:
     X[:, i] = token_to_vector(item)    #it is term dicument matrix
     i += 1
 
-#print(all_tokens)
-#SVD = TruncatedSVD()
-#Z = SVD.fit_transform(X)
+#print(X)
+SVD = TruncatedSVD()
+Z = SVD.fit_transform(X)
 
+plt.scatter(Z[:,0], Z[:,1])
+for i in range(D):
+    plt.annotate(text =index_to_word_map[i], xy =(Z[i,0] , Z[i,1]))
+plt.show()
